@@ -1,22 +1,43 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 public class ATM
 {
-    private int currentBalance;
+    private double currentBalance;
     private String email;
     private String accountNumber;
 
-    public ATM (String inputEmail, int initialBalance)
+    private HashMap<String, String> userID;
+
+    public ATM ()
+    {
+
+    }
+    public void openAccount (String inputEmail, double initialBalance) throws IOException
     {
         String accountNumber = "";
-        email = inputEmail;
+
         currentBalance = initialBalance;
         for (int i = 0; i < 8; i++)
         {
             accountNumber = accountNumber + "" + (int)(Math.random() * 10);
         }
         this.accountNumber =  accountNumber;
+        if (userID.isEmpty())
+        {
+            email = inputEmail;
+            userID.put (email, accountNumber);
+        }
+        else if (userID.containsKey(email) == true)
+        {
+            throw new IOException ("This email is already in use");
+            
+        }
+        else
+        {
+            userID.put (email, accountNumber);
+        }
 
     }
 
@@ -26,11 +47,23 @@ public class ATM
         currentBalance += depositAmount;
     
 }
-public int checkBalance ()
+public void closeAccount(String inputID) throws IOException
+{
+    if (currentBalance != 0)
+    {
+        throw new IOException ("Need to withdraw current balance");
+    }
+    else
+    {
+        userID.remove(inputID, accountNumber);
+    }
+    
+}
+public double checkBalance ()
 {
     return currentBalance;
 }
-public int withdraw (int withdrawAmount)
+public double withdraw (int withdrawAmount)
 {
     currentBalance = currentBalance - withdrawAmount;
     return currentBalance;
