@@ -36,6 +36,7 @@ public class ATM
         }
         else
         {
+            email = inputEmail;
             userID.put (email, accountNumber);
         }
 
