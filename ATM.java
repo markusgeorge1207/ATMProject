@@ -1,99 +1,105 @@
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
-public class ATM
-{
-    private double currentBalance;
-    private String email;
-    private String accountNumber;
+import java.util.Map;
 
-    private HashMap<String, String> userID;
+public class ATM {
+    private Map<String, Double> accounts;
 
-    public ATM ()
-    {
-
+    public ATM() {
+        accounts = new HashMap<>();
     }
-    public void openAccount (String inputEmail, double initialBalance) throws IOException
-    {
-        String accountNumber = "";
-
-        currentBalance = initialBalance;
-        for (int i = 0; i < 8; i++)
-        {
-            accountNumber = accountNumber + "" + (int)(Math.random() * 10);
+    public void openAccount(String userId, double amount) {
+        if (!accounts.containsKey(userId)) {
+            accounts.put(userId, amount);
+        } else {
+            throw new RuntimeException("User already exists.");
         }
-        this.accountNumber =  accountNumber;
-        if (userID.isEmpty())
-        {
-            email = inputEmail;
-            userID.put (email, accountNumber);
-        }
-        else if (userID.containsKey(email) == true)
-        {
-            throw new IOException ("This email is already in use");
-            
-        }
-        else
-        {
-            email = inputEmail;
-            userID.put (email, accountNumber);
-        }
-
     }
-
-
-    public void deposit (int depositAmount) 
-    {
-        currentBalance += depositAmount;
+    public void closeAccount(String userId) {
+        if (accounts.containsKey(userId)) {
+            double balance = accounts.get(userId);
+            if (balance == 0.0) {
+                accounts.remove(userId);
+            } else {
+                throw new RuntimeException("Withdraw all funds before closing the account.");
+            }
+        } else {
+            throw new RuntimeException("Account not found.");
+        }
+    }
+    public double checkBalance(String userId) {
+        if (accounts.containsKey(userId)) {
+            return accounts.get(userId);
+        } else {
+            throw new RuntimeException("Account not found.");
+        }
+    }
+    public double depositMoney(String userId, double amount) {
+        if (accounts.containsKey(userId)) {
+            double balance = accounts.get(userId);
+            balance += amount;
+            accounts.put(userId, balance);
+            return balance;
+        } else {
+            throw new RuntimeException("Account not found.");
+        }
+    }
+    public double withdrawMoney(String userId, double amount) {
+        if (accounts.containsKey(userId)) {
+            double balance = accounts.get(userId);
+            if (balance >= amount) {
+                balance -= amount;
+                accounts.put(userId, balance);
+                return amount;
+            } else {
+                throw new RuntimeException("Insufficient funds.");
+            }
+        } else {
+            throw new RuntimeException("Account not found.");
+        }
+    }
+    public boolean transferMoney(String fromAccount, String toAccount, double amount) {
+        if (accounts.containsKey(fromAccount) && accounts.containsKey(toAccount)) {
+            double fromBalance = accounts.get(fromAccount);
+            double toBalance = accounts.get(toAccount);
     
-}
-public void closeAccount(String inputID) throws IOException
-{
-    if (currentBalance != 0)
-    {
-        throw new IOException ("Need to withdraw current balance");
+            if (fromBalance >= amount) {
+                fromBalance -= amount;
+                toBalance += amount;
+                accounts.put(fromAccount, fromBalance);
+                accounts.put(toAccount, toBalance);
+                return true;
+            } else {
+                throw new RuntimeException("Insufficient funds for transfer.");
+            }
+        } else {
+            throw new RuntimeException("One or both accounts not found.");
+        }
     }
-    else
-    {
-        userID.remove(inputID, accountNumber);
-    }
-    
-}
-public double checkBalance ()
-{
-    return currentBalance;
-}
-public double withdraw (int withdrawAmount)
-{
-    currentBalance = currentBalance - withdrawAmount;
-    return currentBalance;
-}
-
-public void transfer (ATM otherAccount, int transferAmount)
-{
-    withdraw (transferAmount);
-    otherAccount.deposit (transferAmount);
-}
-
-public void printAccount (String outputFile)
-{
-    try (BufferedWriter writer = new BufferedWriter (new FileWriter (outputFile)))
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append (email + "\n");
-        sb.append (accountNumber + "\n");
-        sb.append (currentBalance + "\n");
-
-        writer.write (sb.toString());
-
-        writer.close();
-
-    }
-    catch (IOException e)
-    {
+    public void audit() {
+    try (PrintWriter writer = new PrintWriter(new FileWriter("AccountAudit.txt"))) {
+        for (Map.Entry<String, Double> entry : accounts.entrySet()) {
+            writer.println(entry.getKey() + ": " + entry.getValue());
+        }
+    } catch (IOException e) {
         e.printStackTrace();
     }
 }
-}
 
+
+
+
+
+
+
+    
+    
+    
+    
+
+    
+
+    
+}
