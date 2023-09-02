@@ -8,7 +8,9 @@ public class ATM {
     private Map<String, Double> accounts;
 
     public ATM() {
-        accounts = new HashMap<>();
+        
+         accounts = new HashMap<>();
+        
     }
     public void openAccount(String userId, double amount) {
         if (!accounts.containsKey(userId)) {
